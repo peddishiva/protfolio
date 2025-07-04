@@ -132,7 +132,7 @@ export default function Projects() {
     handleLogout
   } = useAdminAuth();
 
-  const [projectLinks, setProjectLinks] = useState({
+  const [projectLinks, setProjectLinks] = useState<Record<string, { githubUrl: string; liveUrl: string }>>({
     'face-detection': {
       githubUrl: 'https://github.com/peddishiva/py.projects',
       liveUrl: ''
@@ -151,7 +151,7 @@ export default function Projects() {
     }
   });
 
-  const [tempLinks, setTempLinks] = useState(projectLinks);
+  const [tempLinks, setTempLinks] = useState<Record<string, { githubUrl: string; liveUrl: string }>>(projectLinks);
   const [newProjects, setNewProjects] = useState<NewProject[]>([]);
   const [savedNewProjects, setSavedNewProjects] = useState<NewProject[]>([]);
   const [collapsedProjects, setCollapsedProjects] = useState<Set<string>>(new Set());
@@ -212,7 +212,7 @@ export default function Projects() {
     setTempLinks(prev => ({
       ...prev,
       [projectId]: {
-        ...prev[projectId],
+        ...prev[projectId] || { githubUrl: '', liveUrl: '' },
         [field]: value
       }
     }));
@@ -310,24 +310,34 @@ export default function Projects() {
   };
 
   // Combine existing projects with saved new projects for display
-  const allProjects = [
+  type DisplayProject = (
+    {
+      isNewProject: false;
+      id: string;
+      title: string;
+      description: string;
+      technologies: string[];
+      featured?: boolean;
+      image: string;
+      icon: JSX.Element;
+      category: string;
+    }
+    |
+    (NewProject & { isNewProject: true; icon: JSX.Element; technologies: string[]; image: string; })
+  );
+
+  const allProjects: DisplayProject[] = [
     ...projects.map(p => ({
       ...p,
       technologies: p.technologies,
-      isNewProject: false
+      isNewProject: false as const
     })),
     ...savedNewProjects.map(p => ({
-      id: p.id,
-      title: p.title,
-      description: p.description,
-      technologies: p.skills,
-      featured: p.featured,
-      image: p.mediaUrl || "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800",
+      ...p,
+      isNewProject: true as const,
       icon: getCategoryIcon(p.category),
-      category: p.category,
-      isNewProject: true,
-      githubUrl: p.githubUrl,
-      liveUrl: p.liveUrl
+      technologies: p.skills,
+      image: p.mediaUrl || "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800"
     }))
   ];
 
@@ -708,10 +718,12 @@ export default function Projects() {
           
           <div className="grid md:grid-cols-2 gap-8">
             {allProjects.map((project, index) => {
-              // For existing projects, use projectLinks; for new projects, use their own links
-              const currentLinks = project.isNewProject 
-                ? { githubUrl: project.githubUrl, liveUrl: project.liveUrl }
-                : projectLinks[project.id] || { githubUrl: '', liveUrl: '' };
+              let currentLinks: { githubUrl: string; liveUrl: string };
+              if (project.isNewProject) {
+                currentLinks = { githubUrl: project.githubUrl, liveUrl: project.liveUrl };
+              } else {
+                currentLinks = projectLinks[project.id] || { githubUrl: '', liveUrl: '' };
+              }
               
               return (
                 <Card 

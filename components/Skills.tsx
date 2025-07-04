@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, ExternalLink, Save, X, Lock, Eye, EyeOff, Plus, Trash2, AlertTriangle, Clock } from 'lucide-react';
+import { Settings, ExternalLink, Save, X, Lock, Eye, EyeOff, Plus, Trash2, AlertTriangle, Clock, Globe, Cpu, Database, Code } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 // Login attempt limiter configuration
